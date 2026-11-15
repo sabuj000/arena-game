@@ -77,3 +77,18 @@ test('a Memory sequence round goes through the same flow with its own leaderboar
   // The Reflex boards are untouched.
   await assert.rejects(arena.leaderboards.playerEntry('weekly', player.id), (e: any) => e.code === 'entry_not_found')
 })
+
+test('a Word scramble round goes through the same flow with its own leaderboards', async () => {
+  const { wordsReport } = await import('../game/words/report.ts')
+  const w = await import('../game/words/engine.ts')
+  const { arena } = world()
+  const player = await arena.players.create({ display_name: 'Wordy' })
+  const rival = await findRival(arena)
+  const game = w.startGame(8)
+  for (let i = 0; i < 12; i++) w.submit(game, w.current(game)!.word, 2000 * (i + 1))
+  const mine = w.statsOf(game)
+  assert.equal(mine.solved, 12)
+  const done = await closeMatch(arena, wordsReport(await openMatch(arena, player, rival), player, rival, mine, { score: 10, solved: 1, skipped: 0, wrong: 0, bestStreak: 1 }))
+  assert.deepEqual(done.newAchievements.sort(), ['ach_first_win', 'ach_wordsmith'])
+  assert.equal(((await arena.leaderboards.playerEntry('words_weekly', player.id)) as any).score, mine.score)
+})
