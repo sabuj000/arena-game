@@ -90,3 +90,4 @@ label { display: block; }
 .games p { margin: 0 0 12px; }
 .back { margin-bottom: 8px; }
 .game-title { margin: 0 0 8px; }
+.status { text-align: center; min-height: 1.5em; margin: 0 0 8px; color: var(--muted); }

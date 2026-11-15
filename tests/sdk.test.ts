@@ -21,7 +21,7 @@ test('a bad API key is rejected with invalid_api_key', async () => {
 
 test('a publishable key cannot create players', async () => {
   const w = world({ arena: { apiKey: 'pk_test_x' } })
-  await assert.rejects(w.arena.players.create({ display_name: 'Nope' }), (e: unknown) => e instanceof ArenaError && e.code === 'secret_key_required')
+  await assert.rejects(w.arena.players.create({ display_name: 'Nope' }), (e: unknown) => e instanceof ArenaError && e.code === 'insufficient_permissions')
   assert.ok((await w.arena.leaderboards.list()).data.length > 0)
 })
 
