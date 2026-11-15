@@ -16,5 +16,7 @@ jobs:
         run: npm run check:sdk
       - name: Type check
         run: npm run typecheck
-      - name: Tests (sandbox, SDK, spec contract)
+      - name: Build
+        run: npm run build
+      - name: Tests (engine, sandbox, SDK, spec contract)
         run: npm test
