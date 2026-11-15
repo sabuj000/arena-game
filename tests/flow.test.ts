@@ -92,3 +92,17 @@ test('a Word scramble round goes through the same flow with its own leaderboards
   assert.deepEqual(done.newAchievements.sort(), ['ach_first_win', 'ach_wordsmith'])
   assert.equal(((await arena.leaderboards.playerEntry('words_weekly', player.id)) as any).score, mine.score)
 })
+
+test('a Tile merge game goes through the same flow with its own leaderboards', async () => {
+  const { tilesReport } = await import('../game/tiles/report.ts')
+  const t = await import('../game/tiles/engine.ts')
+  const { arena } = world()
+  const player = await arena.players.create({ display_name: 'Slider' })
+  const rival = await findRival(arena)
+  const mine = { score: 3200, maxTile: 256, moves: 180 }
+  const done = await closeMatch(arena, tilesReport(await openMatch(arena, player, rival), player, rival, mine, t.playBot(4, 0.5, 1)))
+  assert.ok(done.newAchievements.includes('ach_big_tile'))
+  assert.equal(((await arena.leaderboards.playerEntry('tiles_weekly', player.id)) as any).score, 3200)
+  const profile = await loadProfile(arena, player)
+  assert.ok(profile.achievements.some((a) => a.achievement.id === 'ach_big_tile' && a.unlockedAt))
+})

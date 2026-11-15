@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import Memory from './Memory.tsx'
 import Reflex from './Reflex.tsx'
+import Tiles from './Tiles.tsx'
 import Words from './Words.tsx'
 import type { GameProps } from './types.ts'
 
@@ -9,4 +10,5 @@ export const GAME_COMPONENTS: Record<string, (props: GameProps) => ReactNode> = 
   reflex: Reflex,
   memory: Memory,
   words: Words,
+  tiles: Tiles,
 }

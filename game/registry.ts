@@ -29,6 +29,12 @@ export const GAMES: GameInfo[] = [
     blurb: 'Unscramble as many words as you can in 60 seconds. Streaks multiply your points.',
     boards: { best: 'words_weekly', total: 'words_lifetime' },
   },
+  {
+    id: 'tiles',
+    name: 'Tile merge',
+    blurb: 'Slide the board and merge equal tiles. No timer: end the game when you like.',
+    boards: { best: 'tiles_weekly', total: 'tiles_lifetime' },
+  },
 ]
 
 export const gameById = (id: string): GameInfo => GAMES.find((g) => g.id === id) ?? GAMES[0]
