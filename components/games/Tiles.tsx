@@ -153,15 +153,23 @@ export default function Tiles({ client, player, profile, onChange }: GameProps) 
         aria-label="Tile board. Use the arrow keys, swipe, or the buttons below."
         onPointerDown={(e) => {
           swipeRef.current = { x: e.clientX, y: e.clientY }
+          // Keep getting events when the finger leaves the board, so a long swipe still counts.
+          e.currentTarget.setPointerCapture(e.pointerId)
         }}
-        onPointerUp={(e) => {
+        onPointerMove={(e) => {
           const start = swipeRef.current
-          swipeRef.current = null
           if (!start) return
           const dx = e.clientX - start.x
           const dy = e.clientY - start.y
-          if (Math.max(Math.abs(dx), Math.abs(dy)) < 30) return
+          if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return
+          swipeRef.current = null // one move for each swipe
           slide(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up')
+        }}
+        onPointerUp={() => {
+          swipeRef.current = null
+        }}
+        onPointerCancel={() => {
+          swipeRef.current = null
         }}
       >
         {board.map((v, i) => (

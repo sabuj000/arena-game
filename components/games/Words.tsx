@@ -38,9 +38,11 @@ export default function Words({ client, player, profile, onChange }: GameProps) 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const runRef = useRef(0)
   const inputRef = useRef<HTMLInputElement | null>(null)
+  const [touch, setTouch] = useState(false) // phones and tablets: tap the letters, no on-screen keyboard
   const endingRef = useRef(false) // stops the round being reported twice
 
   useEffect(() => {
+    setTouch(window.matchMedia('(pointer: coarse)').matches)
     return () => {
       runRef.current += 1
       if (timerRef.current) clearInterval(timerRef.current)
@@ -86,7 +88,7 @@ export default function Words({ client, player, profile, onChange }: GameProps) 
         if (now >= game.limit) void end()
         else setT(now)
       }, 100)
-      setTimeout(() => inputRef.current?.focus(), 0)
+      if (!window.matchMedia('(pointer: coarse)').matches) setTimeout(() => inputRef.current?.focus(), 0)
     } catch (err) {
       if (run !== runRef.current) return
       setError(errorText(err))
@@ -154,6 +156,15 @@ export default function Words({ client, player, profile, onChange }: GameProps) 
   const left = Math.max(0, Math.ceil((limit - t) / 1000))
   const names = new Map(ACHIEVEMENTS.map((a) => [a.id, a.name]))
 
+  // Which scrambled letters the current guess already uses, so tapped tiles can be greyed out.
+  const usedTiles = new Set<number>()
+  if (letters) {
+    for (const ch of guess.toLowerCase()) {
+      const at = letters.split('').findIndex((l, i) => l.toLowerCase() === ch && !usedTiles.has(i))
+      if (at >= 0) usedTiles.add(at)
+    }
+  }
+
   return (
     <section className="card">
       <div className="hud">
@@ -166,7 +177,7 @@ export default function Words({ client, player, profile, onChange }: GameProps) 
       <div className="letters" aria-label="Scrambled letters">
         {playing && letters
           ? letters.split('').map((ch, i) => (
-              <button key={`${i}-${ch}`} type="button" className="tile" onClick={() => setGuess((g) => g + ch)} aria-label={`Add ${ch}`}>
+              <button key={`${i}-${ch}`} type="button" className={`tile${usedTiles.has(i) ? ' used' : ''}`} disabled={usedTiles.has(i)} onClick={() => setGuess((g) => g + ch)} aria-label={`Add ${ch}`}>
                 {ch.toUpperCase()}
               </button>
             ))
@@ -181,7 +192,7 @@ export default function Words({ client, player, profile, onChange }: GameProps) 
         }}
       >
         <label htmlFor="guess" className="sr-only">Your word</label>
-        <input id="guess" ref={inputRef} value={guess} onChange={(e) => setGuess(e.target.value.replace(/[^a-zA-Z]/g, ''))} disabled={!playing} autoComplete="off" autoCapitalize="none" spellCheck={false} placeholder="Type or tap letters" />
+        <input id="guess" ref={inputRef} value={guess} onChange={(e) => setGuess(e.target.value.replace(/[^a-zA-Z]/g, ''))} disabled={!playing} autoComplete="off" autoCapitalize="none" spellCheck={false} readOnly={touch} inputMode={touch ? 'none' : 'text'} placeholder={touch ? 'Tap the letters' : 'Type or tap letters'} />
         <button type="submit" disabled={!playing || guess === ''}>Check</button>
         <button type="button" className="secondary" disabled={!playing || guess === ''} onClick={() => setGuess((g) => g.slice(0, -1))}>Back</button>
         <button type="button" className="secondary" disabled={!playing} onClick={pass}>Skip</button>

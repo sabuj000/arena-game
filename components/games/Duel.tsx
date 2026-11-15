@@ -197,7 +197,6 @@ export default function Duel({ client, player, profile, onChange }: GameProps) {
 
   const live = phase === 'wait' || phase === 'draw' || phase === 'between'
   const achievementNames = new Map(ACHIEVEMENTS.map((a) => [a.id, a.name]))
-  const versusNow = mode === 'versus'
   const winnerName = result ? ([null, result.names[0], result.names[1]] as const)[winnerOf(result.game)] : null
 
   return (
@@ -213,15 +212,17 @@ export default function Duel({ client, player, profile, onChange }: GameProps) {
             {phase === 'opening' ? 'Opening match…' : phase === 'closing' ? 'Sending results…' : phase === 'draw' ? 'DRAW!' : phase === 'wait' ? 'Wait…' : 'Round over'}
           </div>
           <p className="muted hint" aria-live="polite">{message}</p>
-          <div className="duelpads">
+          <div className={`duelpads${versusRef.current ? '' : ' solo'}`}>
             <button type="button" className="duelpad" disabled={!live} onPointerDown={() => press('a')}>
               {names[0]}
-              <small>{versusNow ? 'Key A' : 'Key A, Space or tap'}</small>
+              <small>{versusRef.current ? 'Tap or key A' : 'Tap here, or press A or Space'}</small>
             </button>
-            <button type="button" className="duelpad" disabled={!live || !versusRef.current} onPointerDown={() => press('b')}>
-              {names[1]}
-              <small>{versusRef.current ? 'Key L' : 'plays by itself'}</small>
-            </button>
+            {versusRef.current ? (
+              <button type="button" className="duelpad" disabled={!live} onPointerDown={() => press('b')}>
+                {names[1]}
+                <small>Tap or key L</small>
+              </button>
+            ) : null}
           </div>
         </>
       ) : null}

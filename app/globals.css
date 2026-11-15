@@ -92,6 +92,7 @@ label { display: block; }
 .game-title { margin: 0 0 8px; }
 .status { text-align: center; min-height: 1.5em; margin: 0 0 8px; color: var(--muted); }
 .letters { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 56px; align-items: center; margin: 8px 0 16px; }
+.tile.used { opacity: 0.3; }
 .tile { min-width: 48px; min-height: 52px; padding: 0; font-size: 1.5rem; font-weight: 700; background: #1a2036; border: 1px solid var(--line); border-radius: 10px; }
 .guessbar { display: flex; gap: 8px; flex-wrap: wrap; }
 .guessbar input { flex: 1 1 160px; margin: 0; }
@@ -109,6 +110,23 @@ label { display: block; }
 .signal.stop { background: #5a1f28; color: #ffd0d4; }
 .signal.go { background: var(--good); color: #062a1a; }
 .duelpads { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.duelpads.solo { grid-template-columns: 1fr; }
 .duelpad { min-height: 120px; display: grid; place-content: center; gap: 4px; font-size: 1.1rem; font-weight: 700; touch-action: manipulation; }
 .duelpad small { font-weight: 400; opacity: 0.85; }
 .modes { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 12px; }
+
+/* Phones: no tap flash or text selection on the game controls, steady layout, bigger targets. */
+.cell, .tile, .duelpad, .dpad button, .tiles { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
+.tiles { overscroll-behavior: contain; }
+@media (max-width: 600px) {
+  .status { min-height: 3em; }
+  .hint { min-height: 3em; }
+  .tile { min-width: 56px; min-height: 60px; }
+  .guessbar button { flex: 1 1 30%; min-height: 52px; }
+  .guessbar input { flex: 1 1 100%; font-size: 1.1rem; }
+  .dpad { grid-template-columns: repeat(3, 72px); }
+  .dpad button { min-height: 60px; font-size: 1.3rem; }
+  .duelpad { min-height: 34vh; }
+  .duelpads.solo .duelpad { min-height: 42vh; }
+  .signal { min-height: 96px; }
+}
