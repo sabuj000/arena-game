@@ -58,3 +58,7 @@ npm run typecheck
 The contract test checks that the sandbox implements every operation in the spec, returns the documented success status and response fields, and can produce every documented error code with its status.
 
 Sandbox test credentials: keys `sk_test_*` (all operations) and `pk_test_*` (list leaderboards, entries, list achievements); payment tokens `tok_test_success` and `tok_test_declined`.
+
+## Browser console
+
+`node scripts/build-playground.mjs <dir>` turns the sandbox into plain JavaScript and lists the spec's operations, for a static page that sends requests to the sandbox. Re-run it after any sandbox or spec change. The page lives in sabuj000/Portfolio (`arena-api.html`).
