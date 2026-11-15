@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import * as e from '../game/engine.ts'
+import { coinsFor, decide } from '../game/common.ts'
+import * as e from '../game/reflex/engine.ts'
 
 test('the same seed gives the same round; a different seed does not', () => {
   assert.deepEqual(e.createRound(7), e.createRound(7))
@@ -85,10 +86,10 @@ test('the bot is deterministic and a stronger bot scores more', () => {
 })
 
 test('decide, coins and accuracy', () => {
-  assert.equal(e.decide(10, 5).winner, 'player')
-  assert.equal(e.decide(5, 10).winner, 'rival')
-  assert.deepEqual(e.decide(7, 7), { winner: 'draw', playerPlacement: 1, rivalPlacement: 1 })
-  assert.equal(e.coinsFor(1234, true), 22)
+  assert.equal(decide(10, 5).winner, 'player')
+  assert.equal(decide(5, 10).winner, 'rival')
+  assert.deepEqual(decide(7, 7), { winner: 'draw', playerPlacement: 1, rivalPlacement: 1 })
+  assert.equal(coinsFor(1234, true), 22)
   assert.equal(e.accuracy({ ...e.emptyStats(), hits: 9, misses: 1 }), 0.9)
 })
 

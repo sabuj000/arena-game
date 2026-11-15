@@ -4,12 +4,15 @@ import { ArenaError } from '../sdk/index.ts'
 import type { LeaderboardEntry, Player } from '../sdk/index.ts'
 import type { GameClient } from '../game/client.ts'
 import { loadBoard } from '../game/flow.ts'
+import { GAMES } from '../game/registry.ts'
 
-type BoardId = 'weekly' | 'lifetime'
-const TITLES: Record<BoardId, string> = { weekly: 'Weekly best', lifetime: 'Lifetime total' }
+type Kind = 'best' | 'total'
+const TITLES: Record<Kind, string> = { best: 'Best score', total: 'Total score' }
 
 export default function Leaderboard({ client, player, version }: { client: GameClient; player: Player; version: number }) {
-  const [board, setBoard] = useState<BoardId>('weekly')
+  const [gameId, setGameId] = useState(GAMES[0].id)
+  const [kind, setKind] = useState<Kind>('best')
+  const board = (GAMES.find((g) => g.id === gameId) ?? GAMES[0]).boards[kind]
   const [rows, setRows] = useState<LeaderboardEntry[] | null>(null)
   const [mine, setMine] = useState<LeaderboardEntry | null>(null)
 
@@ -38,9 +41,18 @@ export default function Leaderboard({ client, player, version }: { client: GameC
 
   return (
     <section className="card">
-      <div className="tabs small" role="tablist">
-        {(['weekly', 'lifetime'] as const).map((id) => (
-          <button key={id} role="tab" aria-selected={board === id} className={board === id ? 'on' : ''} onClick={() => setBoard(id)}>
+      {GAMES.length > 1 ? (
+        <div className="tabs small" role="tablist" aria-label="Game">
+          {GAMES.map((g) => (
+            <button key={g.id} role="tab" aria-selected={gameId === g.id} className={gameId === g.id ? 'on' : ''} onClick={() => setGameId(g.id)}>
+              {g.name}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      <div className="tabs small" role="tablist" aria-label="Board">
+        {(['best', 'total'] as const).map((id) => (
+          <button key={id} role="tab" aria-selected={kind === id} className={kind === id ? 'on' : ''} onClick={() => setKind(id)}>
             {TITLES[id]}
           </button>
         ))}

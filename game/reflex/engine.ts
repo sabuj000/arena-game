@@ -1,5 +1,6 @@
 // Arena Reflex engine. Pure and deterministic: the same seed gives the same round.
 // No DOM, no clock, no network. The UI feeds it clicks and times.
+import { rng } from '../common.ts'
 
 export const ROUND_MS = 20_000
 export const GRID = 4 // 4 x 4 cells
@@ -7,18 +8,6 @@ export const GRID = 4 // 4 x 4 cells
 export type Spawn = { id: number; cell: number; at: number; life: number; decoy: boolean }
 
 export type Round = { seed: number; spawns: Spawn[] }
-
-// mulberry32: a small seeded random number generator.
-export function rng(seed: number): () => number {
-  let a = seed >>> 0
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0
-    let t = a
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
 
 // Targets come faster and live shorter as the round goes on.
 export function createRound(seed: number): Round {
@@ -154,14 +143,6 @@ export function playBot(round: Round, skill: number, seed: number): Stats {
   return finish(game)
 }
 
-export type Outcome = { winner: 'player' | 'rival' | 'draw'; playerPlacement: 1 | 2; rivalPlacement: 1 | 2 }
-
-export function decide(player: number, rival: number): Outcome {
-  if (player > rival) return { winner: 'player', playerPlacement: 1, rivalPlacement: 2 }
-  if (rival > player) return { winner: 'rival', playerPlacement: 2, rivalPlacement: 1 }
-  return { winner: 'draw', playerPlacement: 1, rivalPlacement: 1 }
-}
-
 // ---- achievements the game awards ----
 
 export type Earned = { achievementId: string; reason: string }
@@ -173,6 +154,3 @@ export function earnedAchievements(stats: Stats, won: boolean): Earned[] {
   if (stats.hits > 0 && stats.misses === 0 && stats.decoyHits === 0) out.push({ achievementId: 'ach_flawless', reason: 'No misses or decoys' })
   return out
 }
-
-// Coins for a round: 1 per 100 points, 10 extra for a win.
-export const coinsFor = (score: number, won: boolean) => Math.floor(score / 100) + (won ? 10 : 0)

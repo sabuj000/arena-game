@@ -1,14 +1,14 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { ArenaError } from '../sdk/index.ts'
-import type { Player } from '../sdk/index.ts'
-import { ACHIEVEMENTS } from '../sandbox/catalog.ts'
-import type { GameClient } from '../game/client.ts'
-import { BOOSTER_COMBO, GRID, ROUND_MS, accuracy, advance, averageReaction, click, createRound, finish, playBot, startGame } from '../game/engine.ts'
-import type { ClickResult, Game, Round, Spawn, Stats } from '../game/engine.ts'
-import { closeMatch, findRival, openMatch } from '../game/flow.ts'
-import type { Finished, Profile } from '../game/flow.ts'
-import type { Match } from '../sdk/index.ts'
+import { ArenaError } from '../../sdk/index.ts'
+import type { Match, Player } from '../../sdk/index.ts'
+import { ACHIEVEMENTS } from '../../sandbox/catalog.ts'
+import type { GameProps } from './types.ts'
+import { BOOSTER_COMBO, GRID, ROUND_MS, accuracy, advance, averageReaction, click, createRound, finish, playBot, startGame } from '../../game/reflex/engine.ts'
+import type { ClickResult, Game, Round, Spawn, Stats } from '../../game/reflex/engine.ts'
+import { closeMatch, findRival, openMatch } from '../../game/flow.ts'
+import type { Finished } from '../../game/flow.ts'
+import { reflexReport } from '../../game/reflex/report.ts'
 
 const RIVAL_SKILL = 0.5
 type Phase = 'idle' | 'opening' | 'countdown' | 'playing' | 'closing' | 'done'
@@ -18,7 +18,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 const visibleAt = (game: Game, t: number): Spawn[] => game.round.spawns.filter((s) => !game.resolved.has(s.id) && t >= s.at && t < s.at + s.life)
 const errorText = (err: unknown) => (err instanceof ArenaError ? `${err.message} (${err.code})` : 'Something went wrong.')
 
-export default function Play({ client, player, profile, skin, onChange }: { client: GameClient; player: Player; profile: Profile | null; skin: boolean; onChange: () => void }) {
+export default function Reflex({ client, player, profile, skin, onChange }: GameProps) {
   const [phase, setPhase] = useState<Phase>('idle')
   const [count, setCount] = useState(3)
   const [t, setT] = useState(0)
@@ -113,7 +113,7 @@ export default function Play({ client, player, profile, skin, onChange }: { clie
     const mine = finish(game)
     const theirs = playBot(round, RIVAL_SKILL, round.seed + 1)
     try {
-      const finished = await closeMatch(client.arena, match, player, rival, mine, theirs)
+      const finished = await closeMatch(client.arena, reflexReport(match, player, rival, mine, theirs))
       if (!mounted.current) return
       setResult({ mine, theirs, finished })
       setPhase('done')
@@ -196,7 +196,7 @@ export default function Play({ client, player, profile, skin, onChange }: { clie
           </p>
           <ul className="plain">
             <li>Accuracy {Math.round(accuracy(result.mine) * 100)}% · average reaction {averageReaction(result.mine)} ms · best combo {result.mine.bestCombo}</li>
-            <li>Weekly rank {result.finished.weeklyRank} · lifetime rank {result.finished.lifetimeRank}</li>
+            <li>Weekly rank {result.finished.bestRank} · lifetime rank {result.finished.totalRank}</li>
             <li>+{result.finished.coins} coins</li>
             {result.finished.newAchievements.map((id) => (
               <li key={id} className="notice">Achievement unlocked: {names.get(id) ?? id}</li>

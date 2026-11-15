@@ -9,12 +9,12 @@ import ApiLog from './ApiLog.tsx'
 import type { LogEntry } from './ApiLog.tsx'
 import Join from './Join.tsx'
 import Leaderboard from './Leaderboard.tsx'
-import Play from './Play.tsx'
+import Hub from './Hub.tsx'
 import Profile from './Profile.tsx'
 import Shop from './Shop.tsx'
 
-type Tab = 'play' | 'shop' | 'board' | 'profile'
-const TABS: Array<[Tab, string]> = [['play', 'Play'], ['shop', 'Shop'], ['board', 'Leaderboard'], ['profile', 'Profile']]
+type Tab = 'games' | 'shop' | 'board' | 'profile'
+const TABS: Array<[Tab, string]> = [['games', 'Games'], ['shop', 'Shop'], ['board', 'Leaderboard'], ['profile', 'Profile']]
 
 function remember(id: string | null) {
   try {
@@ -30,7 +30,7 @@ export default function GameApp() {
   const [player, setPlayer] = useState<Player | null>(null)
   const [profile, setProfile] = useState<ProfileData | null>(null)
   const [events, setEvents] = useState<LogEntry[]>([])
-  const [tab, setTab] = useState<Tab>('play')
+  const [tab, setTab] = useState<Tab>('games')
   const [version, setVersion] = useState(0)
   const nextId = useRef(0)
 
@@ -78,7 +78,7 @@ export default function GameApp() {
     setPlayer(null)
     setProfile(null)
     setEvents([])
-    setTab('play')
+    setTab('games')
   }
 
   if (!client) return <p className="muted center">Starting the sandbox…</p>
@@ -101,7 +101,7 @@ export default function GameApp() {
                 </button>
               ))}
             </div>
-            {tab === 'play' ? <Play client={client} player={player} profile={profile} skin={Boolean(profile?.skins.includes('itm_arena_skin'))} onChange={refresh} /> : null}
+            {tab === 'games' ? <Hub client={client} player={player} profile={profile} skin={Boolean(profile?.skins.includes('itm_arena_skin'))} onChange={refresh} /> : null}
             {tab === 'shop' ? <Shop client={client} player={player} profile={profile} onChange={refresh} /> : null}
             {tab === 'board' ? <Leaderboard client={client} player={player} version={version} /> : null}
             {tab === 'profile' ? <Profile player={player} profile={profile} onReset={reset} /> : null}

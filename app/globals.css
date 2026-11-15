@@ -85,3 +85,8 @@ label { display: block; }
 @media (prefers-reduced-motion: reduce) {
   .flash { animation: none; opacity: 0; }
 }
+.games { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.games h3 { margin-top: 0; }
+.games p { margin: 0 0 12px; }
+.back { margin-bottom: 8px; }
+.game-title { margin: 0 0 8px; }
