@@ -47,14 +47,16 @@ How to report: for each failure, write the game, the step, what you expected, wh
 2. **End game and submit score** finishes the game early. With a booster pack, **Undo last move** works once.
 3. Do the tile colors have enough contrast? Can you tell 128, 256 and 512 apart?
 
-## Quick Draw duel
+## Connect Four
 
-1. **1 player:** wait for the signal, then press A, Space or tap your button. Pressing early loses the round. The system presses by itself.
-2. **2 players:** enter a second name. Player 1 presses A and player 2 presses L, or each taps their own button. The first valid press wins the round. Note if both keys work at the same time on your keyboard.
-3. After the duel, both players show ranks and coins. The leaderboard lists both.
-4. First to 3 round wins takes the duel. Is the 250 ms Quick draw achievement too easy or too hard?
+1. **1 player:** you are red and move first. Tap a column to drop a disc. Does it feel clear whose turn it is, and when the system is thinking?
+2. **2 players:** enter a second name. Player 1 is red and player 2 is yellow. Take turns on the same screen. Can you tell red from yellow, including the ring on yellow discs?
+3. Is the system too easy or too hard? It blocks and takes wins but does not plan ahead, so you can beat it with two threats at once.
+4. Win on a diagonal for the "Corner to corner" achievement. Fill the board for a draw if you can. A draw puts both players at placement 1.
+5. With a booster pack, take back a move with the button under the board. Does it take back your move and the system's reply?
+6. After the game, both players show ranks and coins. The leaderboard lists both.
 
 ## Known unknowns
 
 - Bot strength is tuned from simulation only. Say if RivalBot is too easy or too hard in each game.
-- Whether two players can share a placement is not in the API docs. The duel puts both at placement 1 on a draw.
+- Whether two players can share a placement is not in the API docs. A drawn Connect Four game puts both at placement 1. This is now in the spec: players can share a placement.

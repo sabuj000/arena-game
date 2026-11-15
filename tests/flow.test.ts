@@ -107,63 +107,71 @@ test('a Tile merge game goes through the same flow with its own leaderboards', a
   assert.ok(profile.achievements.some((a) => a.achievement.id === 'ach_big_tile' && a.unlockedAt))
 })
 
-test('Quick Draw against the system: only the player gets a result', async () => {
-  const { duelReport } = await import('../game/duel/report.ts')
-  const d = await import('../game/duel/engine.ts')
+// Scripted Connect Four games. Side 0 is the player.
+const DIAGONAL_WIN = [0, 1, 1, 2, 2, 3, 3, 6, 2, 3, 3] // side 0 wins with 6 discs on a diagonal
+
+test('Connect Four against the system: only the player gets a result', async () => {
+  const { connect4Report } = await import('../game/connect4/report.ts')
+  const c = await import('../game/connect4/engine.ts')
   const { arena } = world()
-  const player = await arena.players.create({ display_name: 'Gunslinger' })
+  const player = await arena.players.create({ display_name: 'Stacker' })
   const rival = await findRival(arena)
-  const game = d.startGame(3, 'solo')
-  for (const ms of [230, 240, 220]) d.record(game, d.react(ms), d.react(400))
-  assert.equal(d.isOver(game), true)
-  const done = await closeMatch(arena, duelReport(game, await openMatch(arena, player, rival), player, rival, false))
+  const game = c.newGame()
+  for (const col of DIAGONAL_WIN) c.drop(game, col)
+  assert.equal(game.status, 'won')
+  const done = await closeMatch(arena, connect4Report(game, await openMatch(arena, player, rival), player, rival, false))
   assert.equal(done.won, true)
   assert.equal(done.rival, undefined)
-  assert.deepEqual(done.newAchievements.sort(), ['ach_first_win', 'ach_quick_draw'])
-  assert.equal(((await arena.leaderboards.playerEntry('duel_weekly', player.id)) as any).score, game.score[0])
+  assert.deepEqual(done.newAchievements.sort(), ['ach_diagonal', 'ach_first_win'])
+  assert.equal(((await arena.leaderboards.playerEntry('connect4_weekly', player.id)) as any).score, 175)
   // The system opponent's score is not put on the leaderboard: RivalBot keeps its seeded score.
-  const botScore = (await arena.leaderboards.entries('duel_weekly', { limit: 20 })).data.find((e) => e.player_id === rival.id)?.score
-  assert.equal(botScore, 400)
+  const botScore = (await arena.leaderboards.entries('connect4_weekly', { limit: 20 })).data.find((e) => e.player_id === rival.id)?.score
+  assert.equal(botScore, 135)
 })
 
-test('Quick Draw with two players: both get their score, coins and achievements', async () => {
-  const { duelReport } = await import('../game/duel/report.ts')
-  const d = await import('../game/duel/engine.ts')
+test('Connect Four with two players: both get their score, coins and achievements', async () => {
+  const { connect4Report } = await import('../game/connect4/report.ts')
+  const c = await import('../game/connect4/engine.ts')
   const { arena } = world()
   const one = await arena.players.create({ display_name: 'PlayerOne' })
   const two = await arena.players.create({ display_name: 'PlayerTwo' })
-  const game = d.startGame(4, 'versus')
-  d.record(game, d.react(300), d.react(240)) // two wins, quick
-  d.record(game, d.react(310), d.react(200))
-  d.record(game, d.react(250), d.react(400)) // one win
-  d.record(game, d.react(500), d.react(210))
-  assert.equal(d.isOver(game), true)
-  assert.deepEqual(game.wins, [1, 3])
+  const game = c.newGame()
+  // Player two stacks four across the bottom while player one plays above them.
+  for (const col of [0, 6, 0, 5, 1, 4, 1, 3]) c.drop(game, col)
+  assert.equal(game.status, 'won')
+  assert.equal(game.winner, 1)
   const match = await openMatch(arena, one, two)
-  const done = await closeMatch(arena, duelReport(game, match, one, two, true))
+  const done = await closeMatch(arena, connect4Report(game, match, one, two, true))
   assert.equal(done.won, false)
   assert.equal(done.draw, false)
   assert.ok(done.rival)
   assert.equal(done.rival!.won, true)
-  assert.deepEqual(done.rival!.newAchievements.sort(), ['ach_first_win', 'ach_quick_draw'])
+  assert.deepEqual(done.rival!.newAchievements, ['ach_first_win'])
   assert.deepEqual(done.newAchievements, [])
-  assert.equal(((await arena.leaderboards.playerEntry('duel_weekly', two.id)) as any).score, game.score[1])
-  assert.equal(((await arena.leaderboards.playerEntry('duel_weekly', one.id)) as any).score, game.score[0])
+  assert.equal(((await arena.leaderboards.playerEntry('connect4_weekly', two.id)) as any).score, c.scoreOf(game, 1))
+  assert.equal(((await arena.leaderboards.playerEntry('connect4_weekly', one.id)) as any).score, c.scoreOf(game, 0))
   const stored = await arena.matches.retrieve(match.id)
   assert.deepEqual(stored.results.map((r: any) => [r.player_id, r.placement]), [[two.id, 1], [one.id, 2]])
   assert.ok((await arena.inventory.list(two.id)).data.some((i) => i.item_id === 'itm_coin'))
 })
 
-test('a drawn duel puts both players at placement 1', async () => {
-  const { duelReport } = await import('../game/duel/report.ts')
-  const d = await import('../game/duel/engine.ts')
+test('a drawn Connect Four game puts both players at placement 1', async () => {
+  const { connect4Report } = await import('../game/connect4/report.ts')
+  const c = await import('../game/connect4/engine.ts')
   const { arena } = world()
   const one = await arena.players.create({ display_name: 'DrawOne' })
   const two = await arena.players.create({ display_name: 'DrawTwo' })
-  const game = d.startGame(5, 'versus')
-  for (let i = 0; i < d.MAX_ROUNDS; i++) d.record(game, d.NONE, d.NONE)
+  // A full board with no four in a row, with the last disc still to play.
+  const game = c.newGame()
+  const odd = [1, 1, 2, 2, 1, 1, 2]
+  for (let row = 0; row < c.ROWS; row++) for (let col = 0; col < c.COLS; col++) game.board[row * c.COLS + col] = (row % 2 === 1 ? odd : odd.map((v) => 3 - v))[col]
+  game.board[0] = 0
+  game.discs = [21, 20]
+  game.turn = 1
+  c.drop(game, 0)
+  assert.equal(game.status, 'draw')
   const match = await openMatch(arena, one, two)
-  const done = await closeMatch(arena, duelReport(game, match, one, two, true))
+  const done = await closeMatch(arena, connect4Report(game, match, one, two, true))
   assert.equal(done.draw, true)
   assert.deepEqual((await arena.matches.retrieve(match.id)).results.map((r: any) => r.placement), [1, 1])
 })

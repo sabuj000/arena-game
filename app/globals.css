@@ -106,17 +106,10 @@ label { display: block; }
 .dpad { display: grid; grid-template-columns: repeat(3, 56px); grid-template-areas: '. up .' 'left down right'; gap: 6px; justify-content: center; margin: 12px auto 0; }
 .dpad .d-up { grid-area: up; } .dpad .d-left { grid-area: left; } .dpad .d-down { grid-area: down; } .dpad .d-right { grid-area: right; }
 .center-text { text-align: center; }
-.signal { display: grid; place-items: center; min-height: 140px; border-radius: 12px; font-size: 2.4rem; font-weight: 700; background: #1a2036; margin-bottom: 8px; }
-.signal.stop { background: #5a1f28; color: #ffd0d4; }
-.signal.go { background: var(--good); color: #062a1a; }
-.duelpads { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
-.duelpads.solo { grid-template-columns: 1fr; }
-.duelpad { min-height: 120px; display: grid; place-content: center; gap: 4px; font-size: 1.1rem; font-weight: 700; touch-action: manipulation; }
-.duelpad small { font-weight: 400; opacity: 0.85; }
 .modes { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 12px; }
 
 /* Phones: no tap flash or text selection on the game controls, steady layout, bigger targets. */
-.cell, .tile, .duelpad, .dpad button, .tiles { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
+.cell, .tile, .c4col, .dpad button, .tiles { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
 .tiles { overscroll-behavior: contain; }
 @media (max-width: 600px) {
   .status { min-height: 3em; }
@@ -126,9 +119,6 @@ label { display: block; }
   .guessbar input { flex: 1 1 100%; font-size: 1.1rem; }
   .dpad { grid-template-columns: repeat(3, 72px); }
   .dpad button { min-height: 60px; font-size: 1.3rem; }
-  .duelpad { min-height: 34vh; }
-  .duelpads.solo .duelpad { min-height: 42vh; }
-  .signal { min-height: 96px; }
 }
 
 .howto { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 0 0 12px; background: var(--panel); }
@@ -141,3 +131,22 @@ label { display: block; }
   .howto dl { grid-template-columns: 1fr; gap: 0; }
   .howto dd { margin-bottom: 8px; }
 }
+
+/* Connect Four */
+.c4status { font-weight: 600; min-height: 3em; margin: 4px 0 8px; }
+.c4status.over { color: var(--good); }
+.c4board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding: 8px; background: #2447a8; border-radius: 14px; max-width: 480px; margin: 0 auto 12px; touch-action: manipulation; }
+.c4col { display: grid; gap: 6px; padding: 0; background: transparent; border: 0; border-radius: 8px; min-height: 0; cursor: pointer; }
+.c4col:disabled { cursor: default; opacity: 1; }
+.c4col:not(:disabled):hover { background: rgba(255, 255, 255, 0.12); }
+.c4cell { aspect-ratio: 1; border-radius: 50%; background: #0e1424; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5); display: block; }
+.c4cell.red { background: #e5484d; }
+.c4cell.yellow { background: #f5c542; }
+/* A ring on yellow discs, so the two sides differ by more than colour. */
+.c4cell.yellow { box-shadow: inset 0 0 0 4px #b8901a; }
+.c4cell.win { outline: 3px solid #fff; outline-offset: -3px; animation: c4pulse 0.8s ease-in-out infinite alternate; }
+@keyframes c4pulse { from { transform: scale(1); } to { transform: scale(0.88); } }
+.dot { display: inline-block; width: 0.9em; height: 0.9em; border-radius: 50%; vertical-align: -0.1em; }
+.dot.red { background: #e5484d; }
+.dot.yellow { background: #f5c542; box-shadow: inset 0 0 0 2px #b8901a; }
+@media (prefers-reduced-motion: reduce) { .c4cell.win { animation: none; } }
