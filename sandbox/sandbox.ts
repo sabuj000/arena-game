@@ -1,4 +1,4 @@
-import { SEED_PLAYERS } from './catalog.ts'
+import { SEED_NAMES, SEED_SCORES } from './catalog.ts'
 import { handle } from './server.ts'
 import type { ApiRequest, ApiResponse, Env } from './server.ts'
 import { emptyState } from './store.ts'
@@ -31,12 +31,9 @@ const SEED_KEY = 'sk_test_sandbox_seed'
 function seed(state: State, env: Env): void {
   const call = (method: string, path: string, body?: unknown) =>
     handle(state, { method, path, query: {}, headers: { authorization: `Bearer ${SEED_KEY}` }, body }, env).body as Record<string, unknown>
-  for (const seeded of SEED_PLAYERS) {
-    const player = call('POST', '/players', { display_name: seeded.name })
-    const id = String(player.id)
-    // Two submissions: the best score first, then the rest of the lifetime total.
-    call('POST', '/leaderboards/weekly/scores', { player_id: id, score: seeded.best })
-    call('POST', '/leaderboards/lifetime/scores', { player_id: id, score: seeded.total })
+  const ids = SEED_NAMES.map((name) => String(call('POST', '/players', { display_name: name }).id))
+  for (const [board, scores] of Object.entries(SEED_SCORES)) {
+    scores.forEach((score, i) => call('POST', `/leaderboards/${board}/scores`, { player_id: ids[i], score }))
   }
 }
 

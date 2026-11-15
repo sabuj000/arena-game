@@ -6,7 +6,7 @@ A demo for the fictional **Arena** gaming API ([docs](https://github.com/sabuj00
 | --- | --- |
 | `sdk/` | A zero-dependency TypeScript SDK generated from `openapi/arena.json` (28 operations, 6 resources). Retries on network errors, 429 and 500, and reuses one idempotency key across retries. |
 | `sandbox/` | A working implementation of the whole API that runs in the browser (or Node) over JSON state. Real games call Arena from a server; this exists so the demo needs no backend. |
-| `game/` | *Arena Reflex*, a quick reaction game that uses the SDK for players, matches, leaderboards, inventory, achievements and purchases. |
+| `game/` and `components/` | A game hub. One player, inventory, shop and profile are shared by every game, and each game has its own leaderboards. The first game is *Arena Reflex*, a quick reaction game. |
 
 ## How the game uses the API
 
@@ -19,7 +19,15 @@ A demo for the fictional **Arena** gaming API ([docs](https://github.com/sabuj00
 | Leaderboard | `GET /leaderboards/{id}/entries`, `GET /leaderboards/{id}/players/{player_id}` |
 | Shop | `POST /purchases` (test tokens), `GET /purchases`, `POST /purchases/{id}/refund`, `GET /players/{id}/entitlements` |
 
-The game engine (`game/engine.ts`) is pure and seeded, so a round is reproducible and tested without a browser.
+## Add a game
+
+1. Write a pure, seeded engine in `game/<id>/` with tests.
+2. Add the game to `game/registry.ts` with two leaderboards: `best` keeps the highest score, `total` adds scores up. Add both to `sandbox/catalog.ts`.
+3. Write a component that takes `GameProps` and register it in `components/games/index.ts`. It calls `closeMatch` with a `Report` to submit the result.
+
+`tests/registry.test.ts` checks that every game has its leaderboards and a component.
+
+The Arena Reflex engine (`game/reflex/engine.ts`) is pure and seeded, so a round is reproducible and tested without a browser.
 
 ## Use the SDK
 

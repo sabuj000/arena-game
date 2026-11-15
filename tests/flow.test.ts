@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import * as e from '../game/engine.ts'
+import * as e from '../game/reflex/engine.ts'
+import { reflexReport } from '../game/reflex/report.ts'
 import { buy, closeMatch, findRival, loadBoard, loadProfile, openMatch } from '../game/flow.ts'
 import { world } from './helpers.ts'
 
@@ -20,7 +21,7 @@ test('a won ranked round runs the whole API flow', async () => {
   assert.equal(match.status, 'active')
   const { round, mine } = perfect(21)
   const theirs = e.playBot(round, 0.3, 1)
-  const done = await closeMatch(arena, match, player, rival, mine, theirs)
+  const done = await closeMatch(arena, reflexReport(match, player, rival, mine, theirs))
   assert.equal(done.won, true)
   assert.equal(done.match.status, 'completed')
   assert.deepEqual(done.newAchievements.sort(), ['ach_first_win', 'ach_flawless', 'ach_sharpshooter'])
@@ -36,9 +37,9 @@ test('achievements are awarded once, and a lost round still counts for the leade
   const rival = await findRival(arena)
   const { round, mine } = perfect(21)
   const strong = e.playBot(round, 0.95, 1)
-  const first = await closeMatch(arena, await openMatch(arena, player, rival), player, rival, mine, e.playBot(round, 0.3, 1))
+  const first = await closeMatch(arena, reflexReport(await openMatch(arena, player, rival), player, rival, mine, e.playBot(round, 0.3, 1)))
   assert.equal(first.newAchievements.length, 3)
-  const second = await closeMatch(arena, await openMatch(arena, player, rival), player, rival, mine, { ...strong, score: mine.score + 1 })
+  const second = await closeMatch(arena, reflexReport(await openMatch(arena, player, rival), player, rival, mine, { ...strong, score: mine.score + 1 }))
   assert.equal(second.won, false)
   assert.deepEqual(second.newAchievements, [])
   const lifetime = await arena.leaderboards.playerEntry('lifetime', player.id)

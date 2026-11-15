@@ -1,8 +1,8 @@
 // How Arena Reflex uses the Arena API. Every step here is one SDK call, so the UI can show the API log.
 import { Arena } from '../sdk/index.ts'
 import type { Achievement, InventoryItem, LeaderboardEntry, Match, Player, Purchase } from '../sdk/index.ts'
-import { coinsFor, decide, earnedAchievements } from './engine.ts'
-import type { Stats } from './engine.ts'
+import { decide } from './common.ts'
+import type { GameInfo } from './registry.ts'
 
 export const RIVAL_NAME = 'RivalBot'
 
@@ -23,37 +23,51 @@ export type Finished = {
   match: Match
   won: boolean
   draw: boolean
-  weeklyRank: number
-  lifetimeRank: number
+  bestRank: number
+  totalRank: number
   newAchievements: string[]
   coins: number
 }
 
-// Reports the result: ends the match, submits the score to both leaderboards, unlocks achievements, grants coins.
-export async function closeMatch(arena: Arena, match: Match, player: Player, rival: Player, mine: Stats, theirs: Stats): Promise<Finished> {
-  const outcome = decide(mine.score, theirs.score)
+export type Report = {
+  game: GameInfo
+  match: Match
+  player: Player
+  rival: Player
+  /** The player's score and the rival's score. A higher score wins. */
+  mine: number
+  theirs: number
+  /** Achievement ids this round earned. Ones the player already has are skipped. */
+  earn: (won: boolean) => string[]
+  coins: (won: boolean) => number
+}
+
+// Reports the result: ends the match, submits the score to the game's two leaderboards, unlocks achievements, grants coins.
+export async function closeMatch(arena: Arena, report: Report): Promise<Finished> {
+  const { game, match, player, rival } = report
+  const outcome = decide(report.mine, report.theirs)
   const ended = await arena.matches.end(match.id, {
     results: [
-      { player_id: player.id, placement: outcome.playerPlacement, score: mine.score },
-      { player_id: rival.id, placement: outcome.rivalPlacement, score: theirs.score },
+      { player_id: player.id, placement: outcome.playerPlacement, score: report.mine },
+      { player_id: rival.id, placement: outcome.rivalPlacement, score: report.theirs },
     ],
   })
   const won = outcome.winner === 'player'
-  const weekly = await arena.leaderboards.submitScore('weekly', { player_id: player.id, score: mine.score, match_id: match.id })
-  const lifetime = await arena.leaderboards.submitScore('lifetime', { player_id: player.id, score: mine.score, match_id: match.id })
+  const best = await arena.leaderboards.submitScore(game.boards.best, { player_id: player.id, score: report.mine, match_id: match.id })
+  const total = await arena.leaderboards.submitScore(game.boards.total, { player_id: player.id, score: report.mine, match_id: match.id })
 
   const already = new Set((await arena.achievements.listForPlayer(player.id)).data.map((a) => a.achievement_id))
   const newAchievements: string[] = []
-  for (const earned of earnedAchievements(mine, won)) {
-    if (already.has(earned.achievementId)) continue
-    await arena.achievements.unlock(player.id, earned.achievementId)
-    newAchievements.push(earned.achievementId)
+  for (const id of report.earn(won)) {
+    if (already.has(id) || newAchievements.includes(id)) continue
+    await arena.achievements.unlock(player.id, id)
+    newAchievements.push(id)
   }
 
-  const coins = coinsFor(mine.score, won)
+  const coins = report.coins(won)
   if (coins > 0) await arena.inventory.grant(player.id, { item_id: 'itm_coin', quantity: coins, reason: `match ${match.id}` })
 
-  return { match: ended, won, draw: outcome.winner === 'draw', weeklyRank: weekly.rank, lifetimeRank: lifetime.rank, newAchievements, coins }
+  return { match: ended, won, draw: outcome.winner === 'draw', bestRank: best.rank, totalRank: total.rank, newAchievements, coins }
 }
 
 export type Profile = {
@@ -63,7 +77,7 @@ export type Profile = {
   skins: string[]
 }
 
-export async function loadBoard(arena: Arena, id: 'weekly' | 'lifetime'): Promise<LeaderboardEntry[]> {
+export async function loadBoard(arena: Arena, id: string): Promise<LeaderboardEntry[]> {
   return (await arena.leaderboards.entries(id, { limit: 10 })).data
 }
 

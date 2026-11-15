@@ -30,10 +30,10 @@ export const ACHIEVEMENTS: AchievementDef[] = [
 ]
 
 // Used by tests and by the game to create a believable board.
-export const SEED_PLAYERS: Array<{ name: string; best: number; total: number }> = [
-  { name: 'NovaKnight', best: 3400, total: 18200 },
-  { name: 'IronVale', best: 3100, total: 15800 },
-  { name: 'RivalBot', best: 2600, total: 9400 },
-  { name: 'PixelFox', best: 2200, total: 7300 },
-  { name: 'Quasar', best: 1700, total: 4100 },
-]
+export const SEED_NAMES = ['NovaKnight', 'IronVale', 'RivalBot', 'PixelFox', 'Quasar']
+
+// Starting scores per leaderboard, in the order of SEED_NAMES. A leaderboard without an entry here starts empty.
+export const SEED_SCORES: Record<string, number[]> = {
+  weekly: [3400, 3100, 2600, 2200, 1700],
+  lifetime: [18200, 15800, 9400, 7300, 4100],
+}
