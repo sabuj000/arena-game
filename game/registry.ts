@@ -23,6 +23,12 @@ export const GAMES: GameInfo[] = [
     blurb: 'Watch the pattern, then repeat it. It grows by one pad every level.',
     boards: { best: 'memory_weekly', total: 'memory_lifetime' },
   },
+  {
+    id: 'words',
+    name: 'Word scramble',
+    blurb: 'Unscramble as many words as you can in 60 seconds. Streaks multiply your points.',
+    boards: { best: 'words_weekly', total: 'words_lifetime' },
+  },
 ]
 
 export const gameById = (id: string): GameInfo => GAMES.find((g) => g.id === id) ?? GAMES[0]
