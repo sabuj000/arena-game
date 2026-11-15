@@ -6,7 +6,20 @@ A demo for the fictional **Arena** gaming API ([docs](https://github.com/sabuj00
 | --- | --- |
 | `sdk/` | A zero-dependency TypeScript SDK generated from `openapi/arena.json` (28 operations, 6 resources). Retries on network errors, 429 and 500, and reuses one idempotency key across retries. |
 | `sandbox/` | A working implementation of the whole API that runs in the browser (or Node) over JSON state. Real games call Arena from a server; this exists so the demo needs no backend. |
-| `game/` | *Arena Reflex*, a quick reaction game that uses the SDK for players, matches, leaderboards, inventory, achievements and purchases. (Coming in the next PR.) |
+| `game/` | *Arena Reflex*, a quick reaction game that uses the SDK for players, matches, leaderboards, inventory, achievements and purchases. |
+
+## How the game uses the API
+
+| Action in the game | API calls |
+| --- | --- |
+| Pick a name | `POST /players` (errors: `invalid_display_name`, `display_name_taken`) |
+| Start a ranked match | `GET /players` (find RivalBot), `POST /matches`, `POST /matches/{id}/start` |
+| Use a booster pack | `POST /players/{id}/inventory/consume` |
+| Finish a round | `POST /matches/{id}/end`, `POST /leaderboards/{id}/scores` (weekly and lifetime), `POST .../achievements/{id}/unlock`, `POST .../inventory/grants` (coins) |
+| Leaderboard | `GET /leaderboards/{id}/entries`, `GET /leaderboards/{id}/players/{player_id}` |
+| Shop | `POST /purchases` (test tokens), `GET /purchases`, `POST /purchases/{id}/refund`, `GET /players/{id}/entitlements` |
+
+The game engine (`game/engine.ts`) is pure and seeded, so a round is reproducible and tested without a browser.
 
 ## Use the SDK
 
@@ -28,6 +41,7 @@ Against a real server, omit `fetch` and set `baseUrl`.
 
 ```
 npm install
+npm run dev         # play at http://localhost:3000
 npm run gen:sdk     # regenerate the SDK after the spec changes
 npm test            # sandbox, SDK and spec contract tests
 npm run typecheck

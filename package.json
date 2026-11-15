@@ -1,18 +1,28 @@
 {
   "name": "arena-game",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Arena Reflex: a demo game, a TypeScript SDK generated from the Arena OpenAPI spec, and an in-browser Arena API sandbox.",
   "engines": { "node": ">=22.6" },
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "gen:sdk": "node scripts/gen-sdk.mjs",
     "check:sdk": "node scripts/gen-sdk.mjs && git diff --exit-code -- sdk/types.ts sdk/client.ts",
     "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test tests/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "latest",
+    "react-dom": "latest"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
     "typescript": "^5.6.0"
   }
 }
