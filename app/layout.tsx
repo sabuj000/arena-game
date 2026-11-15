@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Arena Reflex',
-  description: 'A reaction game built on the fictional Arena API, with a TypeScript SDK and an in-browser sandbox.',
+  title: 'Arena games',
+  description: 'Five small games built on the fictional Arena API, with a TypeScript SDK and an in-browser sandbox.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -11,8 +11,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <header className="top">
-          <h1>Arena Reflex</h1>
-          <p className="muted">A demo game for the fictional Arena API</p>
+          <h1>Arena games</h1>
+          <p className="muted">Demo games for the fictional Arena API</p>
         </header>
         {children}
         <footer className="foot">
