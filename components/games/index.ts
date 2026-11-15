@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Duel from './Duel.tsx'
 import Memory from './Memory.tsx'
 import Reflex from './Reflex.tsx'
 import Tiles from './Tiles.tsx'
@@ -11,4 +12,5 @@ export const GAME_COMPONENTS: Record<string, (props: GameProps) => ReactNode> = 
   memory: Memory,
   words: Words,
   tiles: Tiles,
+  duel: Duel,
 }
