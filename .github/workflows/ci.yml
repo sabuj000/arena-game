@@ -12,6 +12,8 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - name: Spec matches arena-docs
+        run: npm run check:spec-drift
       - name: SDK is up to date with the spec
         run: npm run check:sdk
       - name: Type check
