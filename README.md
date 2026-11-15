@@ -6,7 +6,7 @@ A demo for the fictional **Arena** gaming API ([docs](https://github.com/sabuj00
 | --- | --- |
 | `sdk/` | A zero-dependency TypeScript SDK generated from `openapi/arena.json` (28 operations, 6 resources). Retries on network errors, 429 and 500, and reuses one idempotency key across retries. |
 | `sandbox/` | A working implementation of the whole API that runs in the browser (or Node) over JSON state. Real games call Arena from a server; this exists so the demo needs no backend. |
-| `game/` and `components/` | A game hub. One player, inventory, shop and profile are shared by every game, and each game has its own leaderboards. The games are *Arena Reflex* (reaction) and *Memory sequence* (repeat a growing pattern), *Word scramble* (unscramble words against the clock) and *Tile merge* (a turn-based sliding puzzle). |
+| `game/` and `components/` | A game hub. One player, inventory, shop and profile are shared by every game, and each game has its own leaderboards. The games are *Arena Reflex* (reaction) and *Memory sequence* (repeat a growing pattern), *Word scramble* (unscramble words against the clock), *Tile merge* (a turn-based sliding puzzle) and *Quick Draw duel* (one player against the system, or two players on one device). |
 
 ## How the game uses the API
 

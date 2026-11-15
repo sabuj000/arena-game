@@ -19,17 +19,29 @@ export async function openMatch(arena: Arena, player: Player, rival: Player): Pr
   return arena.matches.start(match.id)
 }
 
-export type Finished = {
-  match: Match
+/** What one player got from a finished match. */
+export type Side = {
   won: boolean
-  draw: boolean
   bestRank: number
   totalRank: number
   newAchievements: string[]
   coins: number
 }
 
-export type Report = {
+export type Finished = Side & {
+  match: Match
+  draw: boolean
+  /** Present when the rival is a second player who also gets a result. */
+  rival?: Side
+}
+
+export type Rewards = {
+  /** Achievement ids this result earned. Ones the player already has are skipped. */
+  earn: (won: boolean) => string[]
+  coins: (won: boolean) => number
+}
+
+export type Report = Rewards & {
   game: GameInfo
   match: Match
   player: Player
@@ -37,12 +49,29 @@ export type Report = {
   /** The player's score and the rival's score. A higher score wins. */
   mine: number
   theirs: number
-  /** Achievement ids this round earned. Ones the player already has are skipped. */
-  earn: (won: boolean) => string[]
-  coins: (won: boolean) => number
+  /** Set this when the rival is a person. They then get their score, achievements and coins too. The system opponent gets none. */
+  rivalRewards?: Rewards
 }
 
-// Reports the result: ends the match, submits the score to the game's two leaderboards, unlocks achievements, grants coins.
+// Gives one player the results of a match: the score on both of the game's leaderboards, achievements and coins.
+async function settle(arena: Arena, game: GameInfo, matchId: string, playerId: string, score: number, won: boolean, rewards: Rewards): Promise<Side> {
+  const best = await arena.leaderboards.submitScore(game.boards.best, { player_id: playerId, score, match_id: matchId })
+  const total = await arena.leaderboards.submitScore(game.boards.total, { player_id: playerId, score, match_id: matchId })
+
+  const already = new Set((await arena.achievements.listForPlayer(playerId)).data.map((a) => a.achievement_id))
+  const newAchievements: string[] = []
+  for (const id of rewards.earn(won)) {
+    if (already.has(id) || newAchievements.includes(id)) continue
+    await arena.achievements.unlock(playerId, id)
+    newAchievements.push(id)
+  }
+
+  const coins = rewards.coins(won)
+  if (coins > 0) await arena.inventory.grant(playerId, { item_id: 'itm_coin', quantity: coins, reason: `match ${matchId}` })
+  return { won, bestRank: best.rank, totalRank: total.rank, newAchievements, coins }
+}
+
+// Reports the result: ends the match, then gives the player (and a second player, if there is one) their results.
 export async function closeMatch(arena: Arena, report: Report): Promise<Finished> {
   const { game, match, player, rival } = report
   const outcome = decide(report.mine, report.theirs)
@@ -52,22 +81,11 @@ export async function closeMatch(arena: Arena, report: Report): Promise<Finished
       { player_id: rival.id, placement: outcome.rivalPlacement, score: report.theirs },
     ],
   })
-  const won = outcome.winner === 'player'
-  const best = await arena.leaderboards.submitScore(game.boards.best, { player_id: player.id, score: report.mine, match_id: match.id })
-  const total = await arena.leaderboards.submitScore(game.boards.total, { player_id: player.id, score: report.mine, match_id: match.id })
-
-  const already = new Set((await arena.achievements.listForPlayer(player.id)).data.map((a) => a.achievement_id))
-  const newAchievements: string[] = []
-  for (const id of report.earn(won)) {
-    if (already.has(id) || newAchievements.includes(id)) continue
-    await arena.achievements.unlock(player.id, id)
-    newAchievements.push(id)
-  }
-
-  const coins = report.coins(won)
-  if (coins > 0) await arena.inventory.grant(player.id, { item_id: 'itm_coin', quantity: coins, reason: `match ${match.id}` })
-
-  return { match: ended, won, draw: outcome.winner === 'draw', bestRank: best.rank, totalRank: total.rank, newAchievements, coins }
+  const mine = await settle(arena, game, match.id, player.id, report.mine, outcome.winner === 'player', report)
+  const rivalSide = report.rivalRewards
+    ? await settle(arena, game, match.id, rival.id, report.theirs, outcome.winner === 'rival', report.rivalRewards)
+    : undefined
+  return { ...mine, match: ended, draw: outcome.winner === 'draw', rival: rivalSide }
 }
 
 export type Profile = {

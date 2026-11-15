@@ -35,6 +35,12 @@ export const GAMES: GameInfo[] = [
     blurb: 'Slide the board and merge equal tiles. No timer: end the game when you like.',
     boards: { best: 'tiles_weekly', total: 'tiles_lifetime' },
   },
+  {
+    id: 'duel',
+    name: 'Quick Draw duel',
+    blurb: 'Wait for the signal, then press first. Play alone against the system, or with a second player on the same device.',
+    boards: { best: 'duel_weekly', total: 'duel_lifetime' },
+  },
 ]
 
 export const gameById = (id: string): GameInfo => GAMES.find((g) => g.id === id) ?? GAMES[0]

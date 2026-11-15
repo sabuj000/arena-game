@@ -105,3 +105,10 @@ label { display: block; }
 .dpad { display: grid; grid-template-columns: repeat(3, 56px); grid-template-areas: '. up .' 'left down right'; gap: 6px; justify-content: center; margin: 12px auto 0; }
 .dpad .d-up { grid-area: up; } .dpad .d-left { grid-area: left; } .dpad .d-down { grid-area: down; } .dpad .d-right { grid-area: right; }
 .center-text { text-align: center; }
+.signal { display: grid; place-items: center; min-height: 140px; border-radius: 12px; font-size: 2.4rem; font-weight: 700; background: #1a2036; margin-bottom: 8px; }
+.signal.stop { background: #5a1f28; color: #ffd0d4; }
+.signal.go { background: var(--good); color: #062a1a; }
+.duelpads { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+.duelpad { min-height: 120px; display: grid; place-content: center; gap: 4px; font-size: 1.1rem; font-weight: 700; touch-action: manipulation; }
+.duelpad small { font-weight: 400; opacity: 0.85; }
+.modes { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 12px; }
