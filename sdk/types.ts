@@ -4,10 +4,6 @@ export type List<T> = { object: 'list'; data: T[]; has_more: boolean; next_curso
 
 export type MatchResult = { player_id: string; placement: number; score?: number }
 export type Refund = { reason: string; revoked_quantity: number; refunded_at: string }
-export type LeaderboardEntry = { rank: number; player_id: string; display_name?: string; score: number }
-export type PlayerAchievement = { achievement_id: string; unlocked_at: string }
-export type AchievementUnlock = { achievement_id: string; player_id: string; unlocked_at: string }
-export type Entitlement = { item_id: string; purchase_id: string; granted_at: string }
 
 export type Player = {
   id: string
@@ -89,6 +85,30 @@ export type Purchase = {
   grant_id: string | null
   refund: Refund | null
   created_at: string
+}
+
+export type LeaderboardEntry = {
+  rank: number
+  player_id: string
+  display_name?: string
+  score: number
+}
+
+export type PlayerAchievement = {
+  achievement_id: string
+  unlocked_at: string
+}
+
+export type AchievementUnlock = {
+  achievement_id: string
+  player_id: string
+  unlocked_at: string
+}
+
+export type Entitlement = {
+  item_id: string
+  purchase_id: string
+  granted_at: string
 }
 
 export type CreatePlayerParams = {

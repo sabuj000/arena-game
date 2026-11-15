@@ -78,6 +78,15 @@
               }
             }
           }
+        },
+        "x-example": {
+          "idempotencyKey": "player-create-0001",
+          "body": {
+            "display_name": "NovaKnight",
+            "metadata": {
+              "region": "ap-south"
+            }
+          }
         }
       },
       "get": {
@@ -133,10 +142,42 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Player"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ]
                 }
               }
             }
+          }
+        },
+        "x-example": {
+          "query": {
+            "display_name": "NovaKnight"
           }
         }
       }
@@ -174,6 +215,11 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "player_id": "plr_123"
+          }
         }
       },
       "patch": {
@@ -181,7 +227,20 @@
         "tags": [
           "Players"
         ],
-        "x-error-codes": [],
+        "x-error-codes": [
+          {
+            "code": "display_name_taken",
+            "status": 409
+          },
+          {
+            "code": "invalid_display_name",
+            "status": 422
+          },
+          {
+            "code": "player_not_found",
+            "status": 404
+          }
+        ],
         "parameters": [
           {
             "name": "player_id",
@@ -232,6 +291,14 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "player_id": "plr_123"
+          },
+          "body": {
+            "status": "suspended"
+          }
         }
       },
       "delete": {
@@ -239,7 +306,12 @@
         "tags": [
           "Players"
         ],
-        "x-error-codes": [],
+        "x-error-codes": [
+          {
+            "code": "player_not_found",
+            "status": 404
+          }
+        ],
         "parameters": [
           {
             "name": "player_id",
@@ -261,6 +333,11 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "player_id": "plr_123"
+          }
         }
       }
     },
@@ -270,7 +347,20 @@
         "tags": [
           "Matches"
         ],
-        "x-error-codes": [],
+        "x-error-codes": [
+          {
+            "code": "match_full",
+            "status": 409
+          },
+          {
+            "code": "player_not_found",
+            "status": 404
+          },
+          {
+            "code": "player_suspended",
+            "status": 422
+          }
+        ],
         "parameters": [],
         "responses": {
           "201": {
@@ -315,6 +405,13 @@
                 ]
               }
             }
+          }
+        },
+        "x-example": {
+          "idempotencyKey": "match-create-0001",
+          "body": {
+            "mode": "ranked",
+            "max_players": 2
           }
         }
       },
@@ -373,10 +470,42 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Match"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ]
                 }
               }
             }
+          }
+        },
+        "x-example": {
+          "query": {
+            "status": "active"
           }
         }
       }
@@ -414,6 +543,11 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "match_id": "mch_77"
+          }
         }
       }
     },
@@ -429,8 +563,16 @@
             "status": 409
           },
           {
+            "code": "match_not_found",
+            "status": 404
+          },
+          {
             "code": "match_not_joinable",
             "status": 409
+          },
+          {
+            "code": "player_not_found",
+            "status": 404
           },
           {
             "code": "player_suspended",
@@ -475,6 +617,15 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "match_id": "mch_77"
+          },
+          "idempotencyKey": "join-mch_77-plr_456",
+          "body": {
+            "player_id": "plr_456"
+          }
         }
       }
     },
@@ -485,6 +636,10 @@
           "Matches"
         ],
         "x-error-codes": [
+          {
+            "code": "match_not_found",
+            "status": 404
+          },
           {
             "code": "match_not_startable",
             "status": 409
@@ -511,6 +666,12 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "match_id": "mch_77"
+          },
+          "idempotencyKey": "start-a-match-0001"
         }
       }
     },
@@ -524,6 +685,10 @@
           {
             "code": "match_not_active",
             "status": 409
+          },
+          {
+            "code": "match_not_found",
+            "status": 404
           },
           {
             "code": "player_not_in_match",
@@ -568,7 +733,8 @@
                         },
                         "placement": {
                           "type": "integer",
-                          "minimum": 1
+                          "minimum": 1,
+                          "description": "Final position, starting at 1. Players can share a placement to record a draw. Placements do not have to be consecutive."
                         },
                         "score": {
                           "type": "integer"
@@ -578,7 +744,8 @@
                         "player_id",
                         "placement"
                       ]
-                    }
+                    },
+                    "description": "One result for each player to place. The match returns them in placement order."
                   }
                 },
                 "required": [
@@ -586,6 +753,26 @@
                 ]
               }
             }
+          }
+        },
+        "x-example": {
+          "path": {
+            "match_id": "mch_77"
+          },
+          "idempotencyKey": "match-end-0001",
+          "body": {
+            "results": [
+              {
+                "player_id": "plr_123",
+                "placement": 1,
+                "score": 4200
+              },
+              {
+                "player_id": "plr_456",
+                "placement": 2,
+                "score": 3100
+              }
+            ]
           }
         }
       }
@@ -600,6 +787,10 @@
           {
             "code": "match_not_cancellable",
             "status": 409
+          },
+          {
+            "code": "match_not_found",
+            "status": 404
           }
         ],
         "parameters": [
@@ -623,6 +814,12 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "match_id": "mch_77"
+          },
+          "idempotencyKey": "cancel-a-match-0001"
         }
       }
     },
@@ -640,7 +837,34 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Leaderboard"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ]
                 }
               }
             }
@@ -649,7 +873,8 @@
         "x-key-types": [
           "secret",
           "publishable"
-        ]
+        ],
+        "x-example": {}
       }
     },
     "/leaderboards/{leaderboard_id}": {
@@ -689,7 +914,12 @@
         "x-key-types": [
           "secret",
           "publishable"
-        ]
+        ],
+        "x-example": {
+          "path": {
+            "leaderboard_id": "weekly"
+          }
+        }
       }
     },
     "/leaderboards/{leaderboard_id}/scores": {
@@ -700,15 +930,19 @@
         ],
         "x-error-codes": [
           {
+            "code": "invalid_score",
+            "status": 422
+          },
+          {
+            "code": "leaderboard_not_found",
+            "status": 404
+          },
+          {
             "code": "player_not_found",
             "status": 404
           },
           {
             "code": "player_suspended",
-            "status": 422
-          },
-          {
-            "code": "invalid_score",
             "status": 422
           }
         ],
@@ -758,6 +992,16 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "leaderboard_id": "weekly"
+          },
+          "idempotencyKey": "score-0001",
+          "body": {
+            "player_id": "plr_123",
+            "score": 4200
+          }
         }
       }
     },
@@ -767,7 +1011,12 @@
         "tags": [
           "Leaderboards"
         ],
-        "x-error-codes": [],
+        "x-error-codes": [
+          {
+            "code": "leaderboard_not_found",
+            "status": 404
+          }
+        ],
         "parameters": [
           {
             "name": "leaderboard_id",
@@ -803,7 +1052,34 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/LeaderboardEntry"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ]
                 }
               }
             }
@@ -812,7 +1088,15 @@
         "x-key-types": [
           "secret",
           "publishable"
-        ]
+        ],
+        "x-example": {
+          "path": {
+            "leaderboard_id": "weekly"
+          },
+          "query": {
+            "limit": "10"
+          }
+        }
       }
     },
     "/leaderboards/{leaderboard_id}/players/{player_id}": {
@@ -824,6 +1108,10 @@
         "x-error-codes": [
           {
             "code": "entry_not_found",
+            "status": 404
+          },
+          {
+            "code": "leaderboard_not_found",
             "status": 404
           }
         ],
@@ -851,7 +1139,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/LeaderboardEntry"
                 }
               }
             }
@@ -860,7 +1148,13 @@
         "x-key-types": [
           "secret",
           "publishable"
-        ]
+        ],
+        "x-example": {
+          "path": {
+            "leaderboard_id": "weekly",
+            "player_id": "plr_123"
+          }
+        }
       }
     },
     "/players/{player_id}/inventory": {
@@ -869,7 +1163,12 @@
         "tags": [
           "Inventory"
         ],
-        "x-error-codes": [],
+        "x-error-codes": [
+          {
+            "code": "player_not_found",
+            "status": 404
+          }
+        ],
         "parameters": [
           {
             "name": "player_id",
@@ -886,10 +1185,42 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InventoryItem"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ]
                 }
               }
             }
+          }
+        },
+        "x-example": {
+          "path": {
+            "player_id": "plr_123"
           }
         }
       }
@@ -902,12 +1233,16 @@
         ],
         "x-error-codes": [
           {
+            "code": "item_limit_reached",
+            "status": 422
+          },
+          {
             "code": "item_not_found",
             "status": 404
           },
           {
-            "code": "item_limit_reached",
-            "status": 422
+            "code": "player_not_found",
+            "status": 404
           }
         ],
         "parameters": [
@@ -957,6 +1292,17 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "player_id": "plr_123"
+          },
+          "idempotencyKey": "reward-season-1-plr_123",
+          "body": {
+            "item_id": "itm_arena_skin",
+            "quantity": 1,
+            "reason": "season_1_reward"
+          }
         }
       }
     },
@@ -970,6 +1316,10 @@
           {
             "code": "insufficient_quantity",
             "status": 409
+          },
+          {
+            "code": "player_not_found",
+            "status": 404
           }
         ],
         "parameters": [
@@ -1015,6 +1365,16 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "player_id": "plr_123"
+          },
+          "idempotencyKey": "consume-0001",
+          "body": {
+            "item_id": "itm_gold_pack",
+            "quantity": 1
+          }
         }
       }
     },
@@ -1032,7 +1392,34 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Achievement"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ]
                 }
               }
             }
@@ -1041,7 +1428,8 @@
         "x-key-types": [
           "secret",
           "publishable"
-        ]
+        ],
+        "x-example": {}
       }
     },
     "/players/{player_id}/achievements": {
@@ -1050,7 +1438,12 @@
         "tags": [
           "Achievements"
         ],
-        "x-error-codes": [],
+        "x-error-codes": [
+          {
+            "code": "player_not_found",
+            "status": 404
+          }
+        ],
         "parameters": [
           {
             "name": "player_id",
@@ -1067,10 +1460,42 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PlayerAchievement"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ]
                 }
               }
             }
+          }
+        },
+        "x-example": {
+          "path": {
+            "player_id": "plr_123"
           }
         }
       }
@@ -1115,11 +1540,18 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AchievementUnlock"
                 }
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "player_id": "plr_123",
+            "achievement_id": "ach_first_win"
+          },
+          "idempotencyKey": "unlock-an-achievement-0001"
         }
       }
     },
@@ -1131,16 +1563,20 @@
         ],
         "x-error-codes": [
           {
-            "code": "payment_declined",
-            "status": 402
+            "code": "item_not_for_sale",
+            "status": 422
           },
           {
             "code": "item_not_found",
             "status": 404
           },
           {
-            "code": "item_not_for_sale",
-            "status": 422
+            "code": "payment_declined",
+            "status": 402
+          },
+          {
+            "code": "player_not_found",
+            "status": 404
           }
         ],
         "parameters": [],
@@ -1185,6 +1621,15 @@
                 ]
               }
             }
+          }
+        },
+        "x-example": {
+          "idempotencyKey": "purchase-0001",
+          "body": {
+            "player_id": "plr_123",
+            "item_id": "itm_gold_pack",
+            "quantity": 1,
+            "payment_token": "tok_test_success"
           }
         }
       },
@@ -1243,10 +1688,42 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Purchase"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ]
                 }
               }
             }
+          }
+        },
+        "x-example": {
+          "query": {
+            "player_id": "plr_123"
           }
         }
       }
@@ -1284,6 +1761,11 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "purchase_id": "pur_901"
+          }
         }
       }
     },
@@ -1297,6 +1779,10 @@
           {
             "code": "purchase_already_refunded",
             "status": 409
+          },
+          {
+            "code": "purchase_not_found",
+            "status": 404
           },
           {
             "code": "purchase_not_refundable",
@@ -1344,6 +1830,15 @@
               }
             }
           }
+        },
+        "x-example": {
+          "path": {
+            "purchase_id": "pur_901"
+          },
+          "idempotencyKey": "refund-pur_901",
+          "body": {
+            "reason": "customer_request"
+          }
         }
       }
     },
@@ -1353,7 +1848,12 @@
         "tags": [
           "Purchases"
         ],
-        "x-error-codes": [],
+        "x-error-codes": [
+          {
+            "code": "player_not_found",
+            "status": 404
+          }
+        ],
         "parameters": [
           {
             "name": "player_id",
@@ -1370,10 +1870,42 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "const": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Entitlement"
+                      }
+                    },
+                    "has_more": {
+                      "type": "boolean"
+                    },
+                    "next_cursor": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "object",
+                    "data",
+                    "has_more",
+                    "next_cursor"
+                  ]
                 }
               }
             }
+          }
+        },
+        "x-example": {
+          "path": {
+            "player_id": "plr_123"
           }
         }
       }
@@ -1655,6 +2187,83 @@
             "type": "string"
           }
         }
+      },
+      "LeaderboardEntry": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "player_id": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "The player display name. Can be missing if the player no longer exists."
+          },
+          "score": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "rank",
+          "player_id",
+          "score"
+        ]
+      },
+      "PlayerAchievement": {
+        "type": "object",
+        "properties": {
+          "achievement_id": {
+            "type": "string"
+          },
+          "unlocked_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "achievement_id",
+          "unlocked_at"
+        ]
+      },
+      "AchievementUnlock": {
+        "type": "object",
+        "properties": {
+          "achievement_id": {
+            "type": "string"
+          },
+          "player_id": {
+            "type": "string"
+          },
+          "unlocked_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "achievement_id",
+          "player_id",
+          "unlocked_at"
+        ]
+      },
+      "Entitlement": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "purchase_id": {
+            "type": "string"
+          },
+          "granted_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "item_id",
+          "purchase_id",
+          "granted_at"
+        ]
       }
     }
   }
