@@ -23,6 +23,8 @@ export const LEADERBOARDS: Record<string, LeaderboardDef> = {
   memory_lifetime: { name: 'Memory lifetime total', sort: 'desc', update_mode: 'sum', reset: 'never' },
   words_weekly: { name: 'Word scramble weekly best', sort: 'desc', update_mode: 'best', reset: 'weekly' },
   words_lifetime: { name: 'Word scramble lifetime total', sort: 'desc', update_mode: 'sum', reset: 'never' },
+  tiles_weekly: { name: 'Tile merge weekly best', sort: 'desc', update_mode: 'best', reset: 'weekly' },
+  tiles_lifetime: { name: 'Tile merge lifetime total', sort: 'desc', update_mode: 'sum', reset: 'never' },
 }
 
 export type AchievementDef = { id: string; key: string; name: string; description: string; hidden: boolean }
@@ -32,6 +34,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'ach_sharpshooter', key: 'sharpshooter', name: 'Sharpshooter', description: 'Score 2,000 or more in one round.', hidden: false },
   { id: 'ach_elephant', key: 'elephant', name: 'Elephant memory', description: 'Complete level 10 in Memory sequence.', hidden: false },
   { id: 'ach_wordsmith', key: 'wordsmith', name: 'Wordsmith', description: 'Solve 12 words in one Word scramble round.', hidden: false },
+  { id: 'ach_big_tile', key: 'big_tile', name: 'Big tile', description: 'Make a 256 tile in Tile merge.', hidden: false },
   { id: 'ach_flawless', key: 'flawless', name: 'Flawless', description: 'Finish a round without a miss.', hidden: true },
 ]
 
@@ -46,4 +49,6 @@ export const SEED_SCORES: Record<string, number[]> = {
   memory_lifetime: [3900, 3200, 2500, 1800, 900],
   words_weekly: [1100, 950, 760, 600, 420],
   words_lifetime: [6000, 5100, 3900, 2800, 1700],
+  tiles_weekly: [4200, 3400, 2600, 1900, 1200],
+  tiles_lifetime: [22000, 18000, 13000, 9000, 5200],
 }
