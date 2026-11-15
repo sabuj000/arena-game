@@ -25,8 +25,8 @@ export const LEADERBOARDS: Record<string, LeaderboardDef> = {
   words_lifetime: { name: 'Word scramble lifetime total', sort: 'desc', update_mode: 'sum', reset: 'never' },
   tiles_weekly: { name: 'Tile merge weekly best', sort: 'desc', update_mode: 'best', reset: 'weekly' },
   tiles_lifetime: { name: 'Tile merge lifetime total', sort: 'desc', update_mode: 'sum', reset: 'never' },
-  duel_weekly: { name: 'Quick Draw weekly best', sort: 'desc', update_mode: 'best', reset: 'weekly' },
-  duel_lifetime: { name: 'Quick Draw lifetime total', sort: 'desc', update_mode: 'sum', reset: 'never' },
+  connect4_weekly: { name: 'Connect Four weekly best', sort: 'desc', update_mode: 'best', reset: 'weekly' },
+  connect4_lifetime: { name: 'Connect Four lifetime total', sort: 'desc', update_mode: 'sum', reset: 'never' },
 }
 
 export type AchievementDef = { id: string; key: string; name: string; description: string; hidden: boolean }
@@ -37,7 +37,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'ach_elephant', key: 'elephant', name: 'Elephant memory', description: 'Complete level 10 in Memory sequence.', hidden: false },
   { id: 'ach_wordsmith', key: 'wordsmith', name: 'Wordsmith', description: 'Solve 12 words in one Word scramble round.', hidden: false },
   { id: 'ach_big_tile', key: 'big_tile', name: 'Big tile', description: 'Make a 256 tile in Tile merge.', hidden: false },
-  { id: 'ach_quick_draw', key: 'quick_draw', name: 'Quick draw', description: 'Win a Quick Draw round with a press under 250 ms.', hidden: false },
+  { id: 'ach_diagonal', key: 'diagonal', name: 'Corner to corner', description: 'Win a Connect Four game with a diagonal line.', hidden: false },
   { id: 'ach_flawless', key: 'flawless', name: 'Flawless', description: 'Finish a round without a miss.', hidden: true },
 ]
 
@@ -54,6 +54,6 @@ export const SEED_SCORES: Record<string, number[]> = {
   words_lifetime: [6000, 5100, 3900, 2800, 1700],
   tiles_weekly: [4200, 3400, 2600, 1900, 1200],
   tiles_lifetime: [22000, 18000, 13000, 9000, 5200],
-  duel_weekly: [440, 420, 400, 380, 340],
-  duel_lifetime: [2600, 2100, 1700, 1300, 900],
+  connect4_weekly: [165, 150, 135, 120, 100],
+  connect4_lifetime: [1700, 1400, 1100, 800, 500],
 }
