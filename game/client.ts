@@ -3,7 +3,7 @@ import { Arena } from '../sdk/index.ts'
 import type { RequestEvent } from '../sdk/index.ts'
 import { createSandbox } from '../sandbox/sandbox.ts'
 import type { Sandbox } from '../sandbox/sandbox.ts'
-import { localStorageStorage } from '../sandbox/store.ts'
+import { localStorageStorage, memoryStorage } from '../sandbox/store.ts'
 import type { State, Storage } from '../sandbox/store.ts'
 
 export const STORAGE_KEY = 'arena-reflex-sandbox'
@@ -33,5 +33,13 @@ export type GameClient = { arena: Arena; sandbox: Sandbox }
 export function createGameClient(onRequest: (event: RequestEvent) => void): GameClient {
   const sandbox = createSandbox({ storage: cached(localStorageStorage(STORAGE_KEY)), latency: [40, 140] })
   const arena = new Arena({ apiKey: 'sk_test_arena_reflex', fetch: sandbox.fetch, onRequest })
+  return { arena, sandbox }
+}
+
+// A throwaway sandbox for practice rounds. It lives in memory only, so nothing is saved and the real
+// sandbox (and its API log) is never touched.
+export function createPracticeClient(latency: [number, number] = [30, 80]): GameClient {
+  const sandbox = createSandbox({ storage: memoryStorage(), latency })
+  const arena = new Arena({ apiKey: 'sk_test_arena_reflex', fetch: sandbox.fetch })
   return { arena, sandbox }
 }

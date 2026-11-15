@@ -24,3 +24,12 @@ test('every game in the registry has a component in the hub', () => {
   const source = readFileSync(new URL('../components/games/index.ts', import.meta.url), 'utf8')
   for (const g of GAMES) assert.match(source, new RegExp(`\\b${g.id}:`), `no component for ${g.id}`)
 })
+
+test('every game explains how to play, in short lines', () => {
+  for (const g of GAMES) {
+    for (const [field, text] of Object.entries(g.howTo)) {
+      assert.ok(text.length > 0, `${g.id}.howTo.${field} is empty`)
+      assert.ok(text.length <= 220, `${g.id}.howTo.${field} is ${text.length} characters. Keep it under 220.`)
+    }
+  }
+})
