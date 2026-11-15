@@ -11,6 +11,7 @@
     "start": "next start",
     "gen:sdk": "node scripts/gen-sdk.mjs",
     "check:sdk": "node scripts/gen-sdk.mjs && git diff --exit-code -- sdk/types.ts sdk/client.ts",
+    "check:spec-drift": "node scripts/spec-drift.mjs",
     "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test tests/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
