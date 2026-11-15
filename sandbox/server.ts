@@ -460,7 +460,7 @@ export function handle(state: State, req: ApiRequest, env: Env): ApiResponse {
     }
     if (!matched) return errorResponse(requestId, 404, 'not_found_error', 'route_not_found', `No route for ${req.method} ${req.path}.`)
     if (auth[1] === 'pk' && !matched.route.publishable) {
-      return errorResponse(requestId, 403, 'permission_error', 'secret_key_required', 'This request needs a secret key (sk_).')
+      return errorResponse(requestId, 403, 'permission_error', 'insufficient_permissions', 'This request needs a secret key (sk_).')
     }
 
     const bodyObject = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? (req.body as Record<string, unknown>) : {}

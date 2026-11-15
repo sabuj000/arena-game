@@ -17,6 +17,12 @@ export const GAMES: GameInfo[] = [
     // These two ids come from the first version of the demo and are kept as they are.
     boards: { best: 'weekly', total: 'lifetime' },
   },
+  {
+    id: 'memory',
+    name: 'Memory sequence',
+    blurb: 'Watch the pattern, then repeat it. It grows by one pad every level.',
+    boards: { best: 'memory_weekly', total: 'memory_lifetime' },
+  },
 ]
 
 export const gameById = (id: string): GameInfo => GAMES.find((g) => g.id === id) ?? GAMES[0]

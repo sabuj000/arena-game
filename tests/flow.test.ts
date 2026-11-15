@@ -54,3 +54,26 @@ test('shop: a declined card is an error and grants nothing; a good card grants t
   await buy(arena, player, 'itm_arena_skin', 'tok_test_success')
   assert.deepEqual((await loadProfile(arena, player)).skins, ['itm_arena_skin'])
 })
+
+test('a Memory sequence round goes through the same flow with its own leaderboards', async () => {
+  const { memoryReport } = await import('../game/memory/report.ts')
+  const m = await import('../game/memory/engine.ts')
+  const { arena } = world()
+  const player = await arena.players.create({ display_name: 'Rememberer' })
+  const rival = await findRival(arena)
+  const game = m.startGame(5)
+  for (let l = 0; l < 10; l++) {
+    const n = game.level
+    for (let i = 0; i < n; i++) m.press(game, game.seq[i])
+  }
+  m.press(game, (game.seq[0] + 1) % m.PADS) // then a mistake ends the game
+  const mine = m.statsOf(game)
+  assert.equal(mine.completed, 10)
+  const done = await closeMatch(arena, memoryReport(await openMatch(arena, player, rival), player, rival, mine, { score: 100, completed: 4, mistakes: 1 }))
+  assert.equal(done.won, true)
+  assert.deepEqual(done.newAchievements.sort(), ['ach_elephant', 'ach_first_win'])
+  assert.equal(((await arena.leaderboards.playerEntry('memory_weekly', player.id)) as any).score, 550)
+  assert.equal(((await arena.leaderboards.playerEntry('memory_lifetime', player.id)) as any).score, 550)
+  // The Reflex boards are untouched.
+  await assert.rejects(arena.leaderboards.playerEntry('weekly', player.id), (e: any) => e.code === 'entry_not_found')
+})
