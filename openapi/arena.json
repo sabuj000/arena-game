@@ -1,0 +1,1661 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Arena API",
+    "version": "2026-10-01",
+    "description": "Fictional API for a docs-as-code demo. This file is the source of truth that the docs are checked against."
+  },
+  "servers": [
+    {
+      "url": "https://api.arena.example/v1"
+    }
+  ],
+  "x-webhook-events": [
+    "player.created",
+    "player.deleted",
+    "match.started",
+    "match.completed",
+    "match.cancelled",
+    "leaderboard.score_submitted",
+    "inventory.granted",
+    "inventory.consumed",
+    "achievement.unlocked",
+    "purchase.completed",
+    "purchase.refunded"
+  ],
+  "paths": {
+    "/players": {
+      "post": {
+        "summary": "Create a player",
+        "tags": [
+          "Players"
+        ],
+        "x-error-codes": [
+          {
+            "code": "display_name_taken",
+            "status": 409
+          },
+          {
+            "code": "invalid_display_name",
+            "status": 422
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Player"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "display_name": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 24
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "maxProperties": 20,
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "display_name"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List players",
+        "tags": [
+          "Players"
+        ],
+        "x-error-codes": [],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "display_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}": {
+      "get": {
+        "summary": "Retrieve a player",
+        "tags": [
+          "Players"
+        ],
+        "x-error-codes": [
+          {
+            "code": "player_not_found",
+            "status": 404
+          }
+        ],
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Player"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a player",
+        "tags": [
+          "Players"
+        ],
+        "x-error-codes": [],
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Player"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "display_name": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "suspended"
+                    ]
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "maxProperties": 20,
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a player",
+        "tags": [
+          "Players"
+        ],
+        "x-error-codes": [],
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Player"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/matches": {
+      "post": {
+        "summary": "Create a match",
+        "tags": [
+          "Matches"
+        ],
+        "x-error-codes": [],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "ranked",
+                      "casual"
+                    ]
+                  },
+                  "max_players": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 16
+                  },
+                  "player_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "mode",
+                  "max_players"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List matches",
+        "tags": [
+          "Matches"
+        ],
+        "x-error-codes": [],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "active",
+                "completed",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "player_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/matches/{match_id}": {
+      "get": {
+        "summary": "Retrieve a match",
+        "tags": [
+          "Matches"
+        ],
+        "x-error-codes": [
+          {
+            "code": "match_not_found",
+            "status": 404
+          }
+        ],
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/matches/{match_id}/join": {
+      "post": {
+        "summary": "Join a match",
+        "tags": [
+          "Matches"
+        ],
+        "x-error-codes": [
+          {
+            "code": "match_full",
+            "status": 409
+          },
+          {
+            "code": "match_not_joinable",
+            "status": 409
+          },
+          {
+            "code": "player_suspended",
+            "status": 422
+          }
+        ],
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "player_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "player_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/matches/{match_id}/start": {
+      "post": {
+        "summary": "Start a match",
+        "tags": [
+          "Matches"
+        ],
+        "x-error-codes": [
+          {
+            "code": "match_not_startable",
+            "status": 409
+          }
+        ],
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/matches/{match_id}/end": {
+      "post": {
+        "summary": "End a match",
+        "tags": [
+          "Matches"
+        ],
+        "x-error-codes": [
+          {
+            "code": "match_not_active",
+            "status": 409
+          },
+          {
+            "code": "player_not_in_match",
+            "status": 422
+          }
+        ],
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "results": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "player_id": {
+                          "type": "string"
+                        },
+                        "placement": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "score": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "player_id",
+                        "placement"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "results"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/matches/{match_id}/cancel": {
+      "post": {
+        "summary": "Cancel a match",
+        "tags": [
+          "Matches"
+        ],
+        "x-error-codes": [
+          {
+            "code": "match_not_cancellable",
+            "status": 409
+          }
+        ],
+        "parameters": [
+          {
+            "name": "match_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Match"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/leaderboards": {
+      "get": {
+        "summary": "List leaderboards",
+        "tags": [
+          "Leaderboards"
+        ],
+        "x-error-codes": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-key-types": [
+          "secret",
+          "publishable"
+        ]
+      }
+    },
+    "/leaderboards/{leaderboard_id}": {
+      "get": {
+        "summary": "Retrieve a leaderboard",
+        "tags": [
+          "Leaderboards"
+        ],
+        "x-error-codes": [
+          {
+            "code": "leaderboard_not_found",
+            "status": 404
+          }
+        ],
+        "parameters": [
+          {
+            "name": "leaderboard_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Leaderboard"
+                }
+              }
+            }
+          }
+        },
+        "x-key-types": [
+          "secret",
+          "publishable"
+        ]
+      }
+    },
+    "/leaderboards/{leaderboard_id}/scores": {
+      "post": {
+        "summary": "Submit a score",
+        "tags": [
+          "Leaderboards"
+        ],
+        "x-error-codes": [
+          {
+            "code": "player_not_found",
+            "status": 404
+          },
+          {
+            "code": "player_suspended",
+            "status": 422
+          },
+          {
+            "code": "invalid_score",
+            "status": 422
+          }
+        ],
+        "parameters": [
+          {
+            "name": "leaderboard_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Score"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "player_id": {
+                    "type": "string"
+                  },
+                  "score": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "match_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "player_id",
+                  "score"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/leaderboards/{leaderboard_id}/entries": {
+      "get": {
+        "summary": "List entries",
+        "tags": [
+          "Leaderboards"
+        ],
+        "x-error-codes": [],
+        "parameters": [
+          {
+            "name": "leaderboard_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-key-types": [
+          "secret",
+          "publishable"
+        ]
+      }
+    },
+    "/leaderboards/{leaderboard_id}/players/{player_id}": {
+      "get": {
+        "summary": "Retrieve a player entry",
+        "tags": [
+          "Leaderboards"
+        ],
+        "x-error-codes": [
+          {
+            "code": "entry_not_found",
+            "status": 404
+          }
+        ],
+        "parameters": [
+          {
+            "name": "leaderboard_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-key-types": [
+          "secret",
+          "publishable"
+        ]
+      }
+    },
+    "/players/{player_id}/inventory": {
+      "get": {
+        "summary": "List a player inventory",
+        "tags": [
+          "Inventory"
+        ],
+        "x-error-codes": [],
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/inventory/grants": {
+      "post": {
+        "summary": "Grant an item",
+        "tags": [
+          "Inventory"
+        ],
+        "x-error-codes": [
+          {
+            "code": "item_not_found",
+            "status": 404
+          },
+          {
+            "code": "item_limit_reached",
+            "status": 422
+          }
+        ],
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Grant"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "item_id": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "item_id",
+                  "quantity"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/inventory/consume": {
+      "post": {
+        "summary": "Consume an item",
+        "tags": [
+          "Inventory"
+        ],
+        "x-error-codes": [
+          {
+            "code": "insufficient_quantity",
+            "status": 409
+          }
+        ],
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryItem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "item_id": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "item_id",
+                  "quantity"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/achievements": {
+      "get": {
+        "summary": "List achievements",
+        "tags": [
+          "Achievements"
+        ],
+        "x-error-codes": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-key-types": [
+          "secret",
+          "publishable"
+        ]
+      }
+    },
+    "/players/{player_id}/achievements": {
+      "get": {
+        "summary": "List a player achievements",
+        "tags": [
+          "Achievements"
+        ],
+        "x-error-codes": [],
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/achievements/{achievement_id}/unlock": {
+      "post": {
+        "summary": "Unlock an achievement",
+        "tags": [
+          "Achievements"
+        ],
+        "x-error-codes": [
+          {
+            "code": "achievement_not_found",
+            "status": 404
+          },
+          {
+            "code": "player_not_found",
+            "status": 404
+          }
+        ],
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "achievement_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchases": {
+      "post": {
+        "summary": "Create a purchase",
+        "tags": [
+          "Purchases"
+        ],
+        "x-error-codes": [
+          {
+            "code": "payment_declined",
+            "status": 402
+          },
+          {
+            "code": "item_not_found",
+            "status": 404
+          },
+          {
+            "code": "item_not_for_sale",
+            "status": 422
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Purchase"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "player_id": {
+                    "type": "string"
+                  },
+                  "item_id": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "payment_token": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "player_id",
+                  "item_id",
+                  "quantity",
+                  "payment_token"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List purchases",
+        "tags": [
+          "Purchases"
+        ],
+        "x-error-codes": [],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "player_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "succeeded",
+                "failed",
+                "refunded"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchases/{purchase_id}": {
+      "get": {
+        "summary": "Retrieve a purchase",
+        "tags": [
+          "Purchases"
+        ],
+        "x-error-codes": [
+          {
+            "code": "purchase_not_found",
+            "status": 404
+          }
+        ],
+        "parameters": [
+          {
+            "name": "purchase_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Purchase"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchases/{purchase_id}/refund": {
+      "post": {
+        "summary": "Refund a purchase",
+        "tags": [
+          "Purchases"
+        ],
+        "x-error-codes": [
+          {
+            "code": "purchase_already_refunded",
+            "status": 409
+          },
+          {
+            "code": "purchase_not_refundable",
+            "status": 409
+          }
+        ],
+        "parameters": [
+          {
+            "name": "purchase_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Purchase"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "customer_request",
+                      "fraud",
+                      "other"
+                    ]
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/{player_id}/entitlements": {
+      "get": {
+        "summary": "List player entitlements",
+        "tags": [
+          "Purchases"
+        ],
+        "x-error-codes": [],
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Player": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string",
+            "const": "player"
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 24
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "maxProperties": 20,
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Match": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string",
+            "const": "match"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "ranked",
+              "casual"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "active",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "max_players": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 16
+          },
+          "player_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "started_at": {
+            "type": "string"
+          },
+          "ended_at": {
+            "type": "string"
+          }
+        }
+      },
+      "Leaderboard": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string",
+            "const": "leaderboard"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "desc",
+              "asc"
+            ]
+          },
+          "update_mode": {
+            "type": "string",
+            "enum": [
+              "best",
+              "latest",
+              "sum"
+            ]
+          },
+          "reset": {
+            "type": "string",
+            "enum": [
+              "never",
+              "daily",
+              "weekly",
+              "monthly"
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      },
+      "Score": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string",
+            "const": "score"
+          },
+          "leaderboard": {
+            "type": "string"
+          },
+          "player_id": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rank": {
+            "type": "integer"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "submitted_at": {
+            "type": "string"
+          }
+        }
+      },
+      "InventoryItem": {
+        "type": "object",
+        "properties": {
+          "object": {
+            "type": "string",
+            "const": "inventory_item"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        }
+      },
+      "Grant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string",
+            "const": "grant"
+          },
+          "player_id": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      },
+      "Achievement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string",
+            "const": "achievement"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "hidden": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Purchase": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "object": {
+            "type": "string",
+            "const": "purchase"
+          },
+          "player_id": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "succeeded",
+              "failed",
+              "refunded"
+            ]
+          },
+          "grant_id": {
+            "type": "string"
+          },
+          "refund": {
+            "type": "object"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
