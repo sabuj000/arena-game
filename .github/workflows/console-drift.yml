@@ -1,0 +1,20 @@
+name: console-drift
+
+# The browser console on the portfolio runs generated copies of the sandbox. They fall behind when the sandbox
+# or the spec changes here, so check every night. This is not a pull request check: the portfolio is updated
+# after a change here merges, so it would always fail first.
+on:
+  schedule:
+    - cron: '43 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Portfolio console matches this repo
+        run: npm run check:console-drift
